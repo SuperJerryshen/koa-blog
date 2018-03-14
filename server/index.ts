@@ -5,6 +5,7 @@ import bodyParser from 'koa-bodyparser';
 import helmet from 'koa-helmet';
 import routing from './routes';
 import errorHandler from './middlewares/errorHandle';
+import originController from './middlewares/originController';
 import { port, bdUrl } from './config';
 
 mongoose.connect(bdUrl);
@@ -13,8 +14,9 @@ mongoose.connection.on('error', console.error);
 const app = new Koa();
 
 app
-  .use(errorHandler())
   .use(logger())
+  .use(originController())
+  .use(errorHandler())
   .use(bodyParser())
   .use(helmet());
 

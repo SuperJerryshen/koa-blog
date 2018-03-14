@@ -46,6 +46,7 @@ class articleController {
 
     let article = await Article.findByIdAndUpdate(article_id, {
       content,
+      last_update_time: new Date(),
     });
 
     ctx.assert(article, 200, '该文章不存在');
@@ -96,16 +97,18 @@ class articleController {
    * @param ctx
    */
   async getAll<IMiddleware>(ctx: Context): Promise<any> {
-    let { limit, page } = ctx.request.body;
+    let { limit, page } = ctx.request.query;
     if (!limit) {
       limit = 20;
     }
-    if (page == null) {
+    if (!page) {
       page = 1;
     }
     const articles = await Article.find()
+      .sort({ last_update_time: -1 })
       .skip(limit * (page - 1))
-      .limit(limit);
+      .limit(limit)
+      .populate('author', 'nickname avatar _id');
 
     ctx.body = {
       success: true,

@@ -8,9 +8,9 @@ const authMid = authenticate();
 const routes: Array<Route> = [
   {
     url: '/',
-    method: 'get',
+    method: 'post',
     middlewares: [authMid],
-    controller: UsersControllers.getInfo,
+    controller: UsersControllers.getMyInfo,
   },
   {
     url: '/edit',
@@ -19,16 +19,34 @@ const routes: Array<Route> = [
     controller: UsersControllers.editInfo,
   },
   {
-    url: '/token',
+    url: '/auth',
+    method: 'post',
+    middlewares: [authMid],
+    controller: UsersControllers.auth,
+  },
+  {
+    url: '/login',
     method: 'post',
     middlewares: null,
-    controller: UsersControllers.accesstoken,
+    controller: UsersControllers.login,
   },
   {
     url: '/signup',
     method: 'post',
     middlewares: null,
     controller: UsersControllers.signup,
+  },
+  {
+    url: '/:id',
+    method: 'get',
+    middlewares: null,
+    controller: UsersControllers.getInfo,
+  },
+  {
+    url: '/test',
+    method: 'post',
+    middlewares: null,
+    controller: UsersControllers.test,
   },
 ];
 

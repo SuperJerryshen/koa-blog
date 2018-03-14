@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import { ObjectID } from 'bson';
+import User from './users';
 
 export interface ArticleTypes {
   title: string;
@@ -12,6 +13,7 @@ export interface ArticleTypes {
 
 export interface ArticleModelInterface extends Model<Document> {
   hasId(id: string): Promise<any>;
+  getAllWithAuthor(limit: number, page: number): Promise<any>;
 }
 
 const { ObjectId } = Schema.Types;
@@ -45,6 +47,7 @@ const articleSchema = new Schema({
   author: {
     type: ObjectId,
     required: true,
+    ref: 'User',
   },
   stared_user: {
     type: [ObjectId],
@@ -71,5 +74,19 @@ articleSchema.statics.hasId = function(id) {
     });
   });
 };
+articleSchema.statics.getAllWithAuthor = async function(
+  limit: number,
+  page: number
+) {
+  const arts = await this.find()
+    .sort({ last_update_time: -1 })
+    .skip(limit * (page - 1))
+    .limit(limit);
+  arts.forEach(async art => {
+    const user = await User.findById(art.author);
+    art.author = user;
+  });
+  return arts;
+};
 
-export default model<Document, ArticleModelInterface>('Article', articleSchema); 
+export default model<Document, ArticleModelInterface>('Article', articleSchema);
