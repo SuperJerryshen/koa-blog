@@ -65,13 +65,15 @@ const articleSchema = new Schema({
 
 articleSchema.statics.hasId = function(id) {
   return new Promise((res, rej) => {
-    this.findById(id, function(err, art) {
-      if (err) {
-        res(null);
-      } else {
-        res(art);
-      }
-    });
+    this.findById(id)
+      .populate('author', 'nickname avatar _id')
+      .exec(function(err, art) {
+        if (err) {
+          res(null);
+        } else {
+          res(art);
+        }
+      });
   });
 };
 articleSchema.statics.getAllWithAuthor = async function(

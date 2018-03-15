@@ -66,6 +66,7 @@ export default {
       data: {
         token,
         email,
+        id: user._id,
       },
     };
   },

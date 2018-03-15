@@ -42,9 +42,10 @@ class articleController {
    * @param ctx
    */
   async edit<IMiddleware>(ctx: Context): Promise<any> {
-    const { article_id, content } = ctx.request.body;
+    const { article_id, title, content } = ctx.request.body;
 
     let article = await Article.findByIdAndUpdate(article_id, {
+      title,
       content,
       last_update_time: new Date(),
     });
@@ -86,6 +87,10 @@ class articleController {
 
     ctx.assert(article, 200, '文章不存在');
 
+    article.viewed_times += 1;
+
+    await article.save();
+
     ctx.body = {
       success: true,
       data: article,
@@ -106,8 +111,8 @@ class articleController {
     }
     const articles = await Article.find()
       .sort({ last_update_time: -1 })
-      .skip(limit * (page - 1))
-      .limit(limit)
+      // .skip(limit * (page - 1))
+      // .limit(limit)
       .populate('author', 'nickname avatar _id');
 
     ctx.body = {
