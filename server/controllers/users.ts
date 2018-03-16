@@ -49,22 +49,27 @@ export default {
 
     // 检查密码是否正确
     const isMatch = await user.comparePassword(password);
-    // 密码错误时，返回错误
     if (!isMatch) {
       return ctx.throw(200, '登录失败, 密码错误');
     }
 
-    const token = jwt.sign({ email }, secret, {
-      expiresIn: '7 days',
-    });
+    // 检验token是否过期
+    try {
+      await jwt.verify(user.token, secret);
+    } catch (err) {
+      // 过期则新建token
+      const token = jwt.sign({ email }, secret, {
+        expiresIn: '7 days',
+      });
+      user.token = token;
+      await user.save();
+    }
 
-    user.token = token;
-    await user.save();
     ctx.body = {
       success: true,
       message: '登录成功!',
       data: {
-        token,
+        token: user.token,
         email,
         id: user._id,
       },
