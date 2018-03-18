@@ -17,9 +17,25 @@ export default {
    */
   async signup<IMiddleware>(ctx: Context): Promise<any> {
     const { email, password, nickname, avatar } = ctx.request.body;
-    const user = await User.findOne({ email });
-    if (user) {
-      return ctx.throw(200, '用户已存在');
+
+    if (password.length < 6) {
+      return ctx.throw(200, '密码长度必须大于等于6');
+    }
+
+    if (nickname.length > 10) {
+      return ctx.throw(200, '昵称长度不能大于10');
+    }
+
+    if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(email)) {
+      return ctx.throw(200, '请输入正确的邮箱');
+    }
+
+    if (await User.findOne({ email })) {
+      return ctx.throw(200, '邮箱已注册');
+    }
+
+    if (await User.findOne({ nickname })) {
+      return ctx.throw(200, '昵称已存在');
     }
 
     const newUser = new User({
@@ -29,9 +45,24 @@ export default {
       avatar,
     });
 
+    // 为新用户生成token
+    const token = jwt.sign({ email }, secret, {
+      expiresIn: '7 days',
+    });
+    newUser.token = token;
+
     // 保存用户账号
     await newUser.save();
-    ctx.body = { success: true, message: '成功创建新用户!' };
+    ctx.body = {
+      success: true,
+      data: {
+        email,
+        nickname,
+        avatar,
+        token,
+        id: newUser.id,
+      },
+    };
   },
   /**
    * 登录，刷新并获取token

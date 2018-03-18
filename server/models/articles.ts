@@ -9,6 +9,7 @@ export interface ArticleTypes {
   last_update_time: Date;
   author: ObjectID;
   stared_user: Array<ObjectID>;
+  comment_num: number;
 }
 
 export interface ArticleModelInterface extends Model<Document> {
@@ -23,6 +24,7 @@ const commentSchema = new Schema({
   user: ObjectId,
   created_time: Date,
   content: String,
+  stared_user: [ObjectId],
 });
 
 // 文章 Schema
@@ -61,6 +63,10 @@ const articleSchema = new Schema({
     type: [commentSchema],
     default: [],
   },
+});
+
+articleSchema.virtual('comment_num').get(function() {
+  return this.comment.length;
 });
 
 articleSchema.statics.hasId = function(id) {
