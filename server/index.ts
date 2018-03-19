@@ -6,6 +6,7 @@ import helmet from 'koa-helmet';
 import routing from './routes';
 import errorHandler from './middlewares/errorHandle';
 import originController from './middlewares/originController';
+import analyzeUser from './middlewares/analyzeUser';
 import { port, bdUrl } from './config';
 
 mongoose.connect(bdUrl);
@@ -18,7 +19,8 @@ app
   .use(originController())
   .use(errorHandler())
   .use(bodyParser())
-  .use(helmet());
+  .use(helmet())
+  .use(analyzeUser());
 
 routing(app);
 

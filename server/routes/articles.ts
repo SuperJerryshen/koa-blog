@@ -42,6 +42,12 @@ const routes: Array<Route> = [
     middlewares: [authMid],
     controller: ArticleController.make,
   },
+  {
+    url: '/star',
+    method: 'post',
+    middlewares: [authMid],
+    controller: ArticleController.star,
+  },
 ];
 
 const routeConfig: RouteConfig = {

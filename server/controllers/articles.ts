@@ -141,6 +141,48 @@ class articleController {
       data: articles,
     };
   }
+
+  /**
+   * 喜欢或取消喜欢文章
+   * @param ctx
+   */
+  async star<IMiddleware>(ctx: Context): Promise<any> {
+    const { article_id } = ctx.request.body;
+    const { user } = ctx.state;
+
+    let article = await Article.hasId(article_id);
+
+    ctx.assert(article, 200, '该文章不存在');
+
+    let isStared = true;
+
+    // 如果用户喜欢列表中含有该文章
+    if (user.stared_articles.indexOf(article_id) > -1) {
+      // 过滤
+      user.stared_articles = user.stared_articles.filter(
+        id => id.toString() !== article_id
+      );
+      article.stared_users = article.stared_users.filter(
+        id => id.toString() !== user.id
+      );
+      isStared = false;
+    } else {
+      user.stared_articles.push(article_id);
+      article.stared_users.push(user.id);
+    }
+
+    // 保存
+    await article.save();
+    await user.save();
+
+    ctx.body = {
+      success: true,
+      data: {
+        isStared,
+      },
+      message: isStared ? '喜欢文章成功' : '取消喜欢文章成功',
+    };
+  }
 }
 
 export default new articleController();

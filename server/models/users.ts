@@ -2,6 +2,9 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 import { Document, Model } from 'mongoose';
+import { ObjectID } from 'bson';
+
+const { ObjectId } = mongoose.Schema.Types;
 
 export interface UserDocument extends Document {
   comparePassword(password: string): boolean;
@@ -10,6 +13,7 @@ export interface UserDocument extends Document {
   email: string;
   nickname: string;
   avatar: string;
+  stared_articles: Array<ObjectID>;
 }
 
 export interface UserModel extends Model<UserDocument> {
@@ -39,6 +43,8 @@ const userSchema = new Schema({
   avatar: {
     type: String,
   },
+  // 点赞的文章列表
+  stared_articles: [ObjectId],
   token: String,
 });
 

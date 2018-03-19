@@ -2,19 +2,20 @@ import { Schema, Document, model, Model } from 'mongoose';
 import { ObjectID } from 'bson';
 import User from './users';
 
-export interface ArticleTypes {
+export interface ArticleTypes extends Document {
   title: string;
   content: string;
   created_time: Date;
   last_update_time: Date;
   author: ObjectID;
-  stared_user: Array<ObjectID>;
   comment_num: number;
+  stared_users: Array<ObjectID>;
 }
 
-export interface ArticleModelInterface extends Model<Document> {
+export interface ArticleModelInterface extends Model<ArticleTypes> {
   hasId(id: string): Promise<any>;
   getAllWithAuthor(limit: number, page: number): Promise<any>;
+  
 }
 
 const { ObjectId } = Schema.Types;
@@ -24,7 +25,7 @@ const commentSchema = new Schema({
   user: ObjectId,
   created_time: Date,
   content: String,
-  stared_user: [ObjectId],
+  stared_users: [ObjectId],
 });
 
 // 文章 Schema
@@ -51,7 +52,7 @@ const articleSchema = new Schema({
     required: true,
     ref: 'User',
   },
-  stared_user: {
+  stared_users: {
     type: [ObjectId],
     default: [],
   },
